@@ -230,7 +230,9 @@ angular.module('journey')
   ]
   */
     function drawLineChart() {
-        
+        var margin = {top: 20, right: 80, bottom: 30, left: 50},
+            width = 960 - margin.left - margin.right,
+            height = 500 - margin.top - margin.bottom;
         var parseDate = d3.time.format("%Y-%m-%dT%H:%M:%S.%LZ").parse;
     // Put data into single array variable
         var lineGraphData = [];
@@ -274,39 +276,41 @@ angular.module('journey')
         console.log('transformed data', transformedData);
 
         var color = d3.scale.category10();
-        var vis = d3.select("#linechart"),
-            WIDTH = 1000,
-            HEIGHT = 500,
-            MARGINS = {
-                top: 50,
-                right: 20,
-                bottom: 50,
-                left: 50
-            },
-            lSpace = WIDTH/transformedData.length,
-            xScale = d3.time.scale()
-                .range([MARGINS.left, WIDTH - MARGINS.right])
-                .domain([d3.min(transformedData, function(d) {
+                                                                             color.domain(d3.keys(transformedData));
+
+        var vis = d3.select("#linechart").append('svg')
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+            /* lSpace = WIDTH/transformedData.length;*/
+        
+         var xScale = d3.time.scale()
+             .range([0, width])
+             .domain([d3.min(lineGraphData, function(d) {
                     return d.datePosted;
-                }), d3.max(lineGraphData, function(d) {
-                    return d.datePosted;
-                })]),
-            yScale = d3.scale.linear()
-                .range([HEIGHT - MARGINS.top, MARGINS.bottom])
-                .domain([1, 10]),
-            xAxis = d3.svg.axis()
-                .scale(xScale),
-            yAxis = d3.svg.axis()
+             }), d3.max(lineGraphData, function(d) {
+                 return d.datePosted;
+             })]);
+        
+         var yScale = d3.scale.linear()
+             .range([height, 0])
+             .domain([1, 10]);
+         
+        var xAxis = d3.svg.axis()
+                .scale(xScale)
+                .orient('bottom');
+        
+        var yAxis = d3.svg.axis()
                 .scale(yScale)
-                .orient("left");
+                .orient('left');
 
         vis.append("svg:g")
             .attr("class", "x axis")
-            .attr("transform", "translate(0," + (HEIGHT - MARGINS.bottom) + ")")
+            .attr("transform", "translate(0," + height + ")")
             .call(xAxis);
         vis.append("svg:g")
             .attr("class", "y axis")
-            .attr("transform", "translate(" + (MARGINS.left) + ",0)")
             .call(yAxis);
 
         var lineGen = d3.svg.line()
@@ -316,29 +320,25 @@ angular.module('journey')
             .y(function(d) {
                 return yScale(d.positiveScale);
             })
-            .interpolate("basis");
-        
+            .interpolate('basis');
+        /*
         transformedData.forEach(function(d,i) {
             
-         /*   vis.append('svg:path')
-                .attr('d', lineGen(d.values))
-                .attr('stroke', function(d,j) { 
-                        return "hsl(" + Math.random() * 360 + ",100%,50%)";
-                })
-                .attr('stroke-width', 2)
-                .attr('id', 'line_'+d.key)
-                .attr('fill', 'none'); */
+            vis.append('svg:path')
+                .attr("class", "line")
+      .attr("d", function(d) { return line(d.values); })
+      .style("stroke", function(d) { return color(d.name); });
             
             vis.append("text")
-                .attr("x", (lSpace/2)+i*lSpace)
-                .attr("y", HEIGHT)
-                .style("fill", "black")
-                .attr("class","legend")
-                .text(d.key);
-            });
+                .attr("transform", "rotate(-90)")
+                .attr("y", 6)
+                .attr("dy", ".71em")
+                .style("text-anchor", "end")
+                .text("Positive Emotion Level");
+        });
+*/
+    }
 
-        }
-
-        drawLineChart();
+    drawLineChart();
 
 });
