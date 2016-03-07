@@ -302,15 +302,15 @@ module.exports = {
            postsModel
            .find(queryCriteria, 'positiveScale datePosted')
            .sort({datePosted: 'desc'})
-           .exec(function(err, result) {
-                console.log('err', err);
-                console.log('result', result);
-                if (err) {
+           .exec(function(e, r) {
+                console.log('e', e);
+                console.log('r', r);
+                if (e) {
                     console.log('in error routine');
-                    return res.status(500).send(err);
+                    return res.status(500).send(e);
                 }
                 else {
-                    res.send(result);
+                    res.send(r);
                 }
            });
        }

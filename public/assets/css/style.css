@@ -929,3 +929,24 @@ transform:translate3d(0,100%,0);
 .eb-8  { border-color: rgba(172, 209, 159, 0.4); }
 .eb-9  { border-color: rgba(137, 167, 127, 0.4); }
 .eb-10 { border-color: rgba(114, 138, 105, 0.4); }
+
+/********************/
+/** D3 for Profiles Page **/
+/********************/
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+  display: none;
+}
+
+.line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}

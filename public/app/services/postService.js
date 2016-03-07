@@ -117,6 +117,15 @@ angular.module('journey')
           });
     };
     
+     this.postsQuery = function(group, num, duration, tags) {           
+          var query = 'group=' + group + '&duration=' + duration + '&user=' + num + '&tags=' + tags;      console.log(query, "query");
+       return $http({
+              method: 'GET',
+              url: '/api/posts/getPosts?' + query
+              
+          });
+    };
+    
     
     this.getEmotions = function(duration, user){
         var defer = $q.defer();
