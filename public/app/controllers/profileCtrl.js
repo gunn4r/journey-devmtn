@@ -203,101 +203,142 @@ angular.module('journey')
 
     $scope.barChartData = $scope.barChartDataObject;
     
-// D3 line graph options   
-    
-    var lineGraphData = {
-        userPosts: userPosts,
-        mentorPosts: mentorPosts, 
-        cohortPosts: cohortPosts, 
-        followingPosts: followingPosts
-    };
-    
-    var margin = {top: 20, right: 80, bottom: 30, left: 50},
-        width = 960 - margin.left - margin.right,
-        height = 500 - margin.top - margin.bottom;
+// D3 line graph
 
-    var parseDate = d3.time.format("%Y%m%d").parse;
+   /* My data:
+  userPosts:
+  [
+    {
+        datePosted: '2016-03-04'
+        positiveScale: 7
+    },
+    {
+        datePosted: '2016-03-05'
+        positiveScale: 2
+    },
+  ]
+  mentorPosts:
+  [
+    {
+        datePosted: '2016-03-02'
+        positiveScale: 3
+    },
+    {
+        datePosted: '2016-03-03'
+        positiveScale: 1
+    },
+  ]
+  */
+    function drawLineChart() {
+        
+        var parseDate = d3.time.format("%Y-%m-%dT%H:%M:%S.%LZ").parse;
+    // Put data into single array variable
+        var lineGraphData = [];
+        for (var i = 0; i < userPosts.length; i++) {
+            lineGraphData.push({
+                group: 'user',
+                datePosted: parseDate(userPosts[i].datePosted),
+                positiveScale: userPosts[i].positiveScale
+            });
+        }
+        for (var i = 0; i < mentorPosts.length; i++) {
+            lineGraphData.push({
+                group: 'mentor',
+                datePosted: parseDate(mentorPosts[i].datePosted),
+                positiveScale: mentorPosts[i].positiveScale
+            });
+        }
+        for (var i = 0; i < cohortPosts.length; i++) {
+            lineGraphData.push({
+                group: 'cohort',
+                datePosted: parseDate(cohortPosts[i].datePosted),
+                positiveScale: cohortPosts[i].positiveScale
+            });
+        }
+        for (var i = 0; i < followingPosts.length; i++) {
+            lineGraphData.push({
+                group: 'following',
+                datePosted: parseDate(followingPosts[i].datePosted),
+                positiveScale: followingPosts[i].positiveScale
+            });
+        }
 
-    var x = d3.time.scale()
-        .range([0, width]);
+        console.log('lineGraphData', lineGraphData)
 
-    var y = d3.scale.linear()
-        .range([height, 0]);
 
-    var color = d3.scale.category10();
+// arrange data based on key
+        var transformedData = d3.nest()
+                        .key(function(d) {return d.group;})
+                        .entries(lineGraphData);
 
-    var xAxis = d3.svg.axis()
-        .scale(x)
-        .orient("bottom");
+        console.log('transformed data', transformedData);
 
-    var yAxis = d3.svg.axis()
-        .scale(y)
-        .orient("left");
+        var color = d3.scale.category10();
+        var vis = d3.select("#linechart"),
+            WIDTH = 1000,
+            HEIGHT = 500,
+            MARGINS = {
+                top: 50,
+                right: 20,
+                bottom: 50,
+                left: 50
+            },
+            lSpace = WIDTH/transformedData.length,
+            xScale = d3.time.scale()
+                .range([MARGINS.left, WIDTH - MARGINS.right])
+                .domain([d3.min(transformedData, function(d) {
+                    return d.datePosted;
+                }), d3.max(lineGraphData, function(d) {
+                    return d.datePosted;
+                })]),
+            yScale = d3.scale.linear()
+                .range([HEIGHT - MARGINS.top, MARGINS.bottom])
+                .domain([1, 10]),
+            xAxis = d3.svg.axis()
+                .scale(xScale),
+            yAxis = d3.svg.axis()
+                .scale(yScale)
+                .orient("left");
 
-    var line = d3.svg.line()
-        .interpolate("basis")
-        .x(function(d) { return x(d.date); })
-        .y(function(d) { return y(d.temperature); });
+        vis.append("svg:g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + (HEIGHT - MARGINS.bottom) + ")")
+            .call(xAxis);
+        vis.append("svg:g")
+            .attr("class", "y axis")
+            .attr("transform", "translate(" + (MARGINS.left) + ",0)")
+            .call(yAxis);
 
-    var svg = d3.select("div.linechart").append("svg")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
-        .append("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-        .data(lineGraphData);
-
-    color.domain(d3.keys(lineGraphData));
-
-        /* data.forEach(function(d) {
-            d.date = parseDate(d.date);
-        }); */
-
-    /*var groups = color.domain().map(function(name) {
-        return {
-            name: name,
-            values: lineGraphData.map(function(d) {
-                return {
-                    date: d.datePosted, 
-                    positiveScale: d.positiveScale
-                };
+        var lineGen = d3.svg.line()
+            .x(function(d) {
+                return xScale(d.datePosted);
             })
-        };
-    });
-*/
-    x.domain(d3.extent(lineGraphData, function(d) { return d.datePosted; }));
+            .y(function(d) {
+                return yScale(d.positiveScale);
+            })
+            .interpolate("basis");
+        
+        transformedData.forEach(function(d,i) {
+            
+         /*   vis.append('svg:path')
+                .attr('d', lineGen(d.values))
+                .attr('stroke', function(d,j) { 
+                        return "hsl(" + Math.random() * 360 + ",100%,50%)";
+                })
+                .attr('stroke-width', 2)
+                .attr('id', 'line_'+d.key)
+                .attr('fill', 'none'); */
+            
+            vis.append("text")
+                .attr("x", (lSpace/2)+i*lSpace)
+                .attr("y", HEIGHT)
+                .style("fill", "black")
+                .attr("class","legend")
+                .text(d.key);
+            });
 
-    y.domain([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
-          
-    svg.append("g")
-    .attr("class", "x axis")
-    .attr("transform", "translate(0," + height + ")")
-    .call(xAxis);
+        }
 
-    svg.append("g")
-      .attr("class", "y axis")
-      .call(yAxis)
-      .append("text")
-      .attr("transform", "rotate(-90)")
-      .attr("y", 6)
-      .attr("dy", ".71em")
-      .style("text-anchor", "end")
-      .text("Positive Scale");
+        drawLineChart();
 
-  /*  var group = svg.selectAll(".group")
-        .data(groups)
-        .enter().append("g")
-        .attr("class", "city");
-
-    group.append("path")
-        .attr("class", "line")
-        .attr("d", function(d) { return line(d.values); })
-        .style("stroke", function(d) { return color(d.name); });
-
-    group.append("text")
-        .datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; })
-        .attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.temperature) + ")"; })
-        .attr("x", 3)
-        .attr("dy", ".35em")
-        .text(function(d) { return d.name; });
-   */
 });
