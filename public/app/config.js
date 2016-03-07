@@ -127,7 +127,7 @@ angular.module('journey' )
             },
             userPosts: function(user, postService)  {
                 return postService.postsQuery('user', 
-                user._id, 'week', 'false')
+                user._id, 'month', 'false')
                 .then(function(response) {
                     return  response.data;
                 }, function(err) {
@@ -136,7 +136,7 @@ angular.module('journey' )
             },
             cohortPosts: function(user, postService)  {
                 return postService.postsQuery('cohort', 
-                user._id, 'week', 'false')
+                user._id, 'month', 'false')
                 .then(function(response) {
                    return  response.data;
                 }, function(err) {
@@ -145,7 +145,7 @@ angular.module('journey' )
             },
             followingPosts: function(user, postService)  {
                 return postService.postsQuery('following', 
-                user._id, 'week', 'false')
+                user._id, 'month', 'false')
                 .then(function(response) {
                    return  response.data;
                 }, function(err) {
@@ -154,7 +154,7 @@ angular.module('journey' )
             },
             mentorPosts: function(user, postService)  {
                 return postService.postsQuery('mentor', 
-                user._id, 'week', 'false')
+                user._id, 'month', 'false')
                 .then(function(response) {
                    return  response.data;
                 }, function(err) {

@@ -276,7 +276,7 @@ angular.module('journey')
         console.log('transformed data', transformedData);
 
         var color = d3.scale.category10();
-                                                                             color.domain(d3.keys(transformedData));
+        color.domain(d3.keys(transformedData));
 
         var vis = d3.select("#linechart").append('svg')
             .attr("width", width + margin.left + margin.right)
@@ -321,22 +321,21 @@ angular.module('journey')
                 return yScale(d.positiveScale);
             })
             .interpolate('basis');
-        /*
-        transformedData.forEach(function(d,i) {
-            
+        
+         transformedData.forEach(function(d,i) {
             vis.append('svg:path')
                 .attr("class", "line")
-      .attr("d", function(d) { return line(d.values); })
-      .style("stroke", function(d) { return color(d.name); });
+                .attr("d", lineGen(d.values) )
+                .style("stroke", ['red','blue','green','orange'][i] )
             
-            vis.append("text")
+            /* vis.append("text")
                 .attr("transform", "rotate(-90)")
                 .attr("y", 6)
                 .attr("dy", ".71em")
                 .style("text-anchor", "end")
-                .text("Positive Emotion Level");
+                .text("Positive Emotion Level"); */
         });
-*/
+
     }
 
     drawLineChart();
